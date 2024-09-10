@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model booking {
+  id             String   @id @db.VarChar(255)
+  payment_id     Int
+  catalog_id     String   @db.VarChar(255)
+  customer_name  String   @db.VarChar(255)
+  email          String   @db.VarChar(255)
+  phone_number   String   @db.VarChar(255)
+  price          Float
+  notes          String   @db.Text
+  schedule       DateTime @db.DateTime(0)
+  booking_status String   @db.VarChar(20)
+  created_at     DateTime @db.DateTime(0)
+  updated_at     DateTime @db.DateTime(0)
+  catalog        catalog  @relation(fields: [catalog_id], references: [id], onUpdate: Restrict, map: "booking_catalog_id_foreign")
+  payment        payment  @relation(fields: [payment_id], references: [id], onUpdate: Restrict, map: "booking_ibfk_1")
+
+  @@index([catalog_id], map: "booking_catalog_id_foreign")
+  @@index([payment_id], map: "payment_id")
+}
+
+model auth {
+  id       String @id @db.Char(36)
+  email    String @db.VarChar(255)
+  password String @db.VarChar(255)
+}
+
+model catalog {
+  id           String    @id @db.VarChar(255)
+  catalog_name String    @db.VarChar(255)
+  catalog_type String    @db.VarChar(255)
+  price        BigInt
+  description  BigInt
+  booking      booking[]
+}
+
+model payment {
+  id               Int       @id @default(autoincrement())
+  account_name     String    @db.VarChar(255)
+  account_number   String    @db.VarChar(255)
+  transfer_nominal Float
+  payment_method   String    @db.VarChar(255)
+  status           String    @db.VarChar(20)
+  img_url          String    @db.VarChar(255)
+  created_at       DateTime  @db.DateTime(0)
+  updated_at       DateTime  @db.DateTime(0)
+  booking          booking[]
+}
