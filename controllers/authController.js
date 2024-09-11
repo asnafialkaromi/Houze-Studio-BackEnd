@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 const { sendSuccess, sendError } = require('../utils/baseResponse');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const currentTimeJakarta = require('../utils/currentTime');
 
 const createUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -85,6 +86,8 @@ const resetPassword = async (req, res) => {
             },
             data: {
                 password: hashedPassword,
+                otp: null,
+                updated_at: currentTimeJakarta(),
             },
         });
         sendSuccess(res, { name: user.name, email: user.email }, 'Password reset successfully');
@@ -100,4 +103,9 @@ const getUserData = async (req, res) => {
     sendSuccess(res, { name: user.name, email: user.email }, 'User data fetched successfully');
 }
 
-module.exports = { createUser, sighnIn, resetPassword, getUserData };
+const logout = async (req, res) => {
+    res.clearCookie('token');
+    sendSuccess(res, null, 'User logged out successfully');
+}
+
+module.exports = { createUser, sighnIn, resetPassword, getUserData, logout };
