@@ -4,6 +4,8 @@ const uploadImage = require('../middlewares/uploadImage');
 
 const router = express.Router();
 
-router.post('/bookings', uploadImage.single('image'), BookingController);
+router.post('/add-booking', uploadImage.single('image'), BookingController.createBooking);
+router.get('/bookings', BookingController.getBooking);
+router.put('/update-booking-status', BookingController.updateBookingStatus);
 
 module.exports = router;

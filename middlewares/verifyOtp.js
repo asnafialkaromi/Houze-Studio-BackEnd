@@ -24,7 +24,6 @@ const verifyOtp = async (req, res, next) => {
         const otpNumber = parseInt(otp);
 
         if (user.otp !== otpNumber) {
-            console.log(user.otp, otpNumber);
             sendError(res, 'Invalid OTP', 400);
             return;
         }

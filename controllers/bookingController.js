@@ -2,6 +2,7 @@ const cloudinary = require('../config/cloudinaryConfig');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { sendSuccess, sendError } = require('../utils/baseResponse');
+const currentTimeJakarta = require('../utils/currentTime');
 
 const createBooking = async (req, res) => {
     const { account_name, account_number, payment_method, transfer_nominal, customer_name, email, phone_number, price, notes, schedule, catalog_id } = req.body;
@@ -20,8 +21,8 @@ const createBooking = async (req, res) => {
                 status: status,
                 transfer_nominal: parseFloat(transfer_nominal),
                 img_url: imageUpload.secure_url,
-                created_at: new Date(),
-                updated_at: new Date(),
+                created_at: currentTimeJakarta(),
+                updated_at: currentTimeJakarta(),
             },
         });
 
@@ -49,8 +50,8 @@ const createBooking = async (req, res) => {
                 notes,
                 schedule: new Date(schedule),
                 booking_status: booking_status,
-                created_at: new Date(),
-                updated_at: new Date(),
+                created_at: currentTimeJakarta(),
+                updated_at: currentTimeJakarta(),
                 catalog_id: catalog_id,
             },
         });
@@ -62,4 +63,66 @@ const createBooking = async (req, res) => {
     }
 }
 
-module.exports = createBooking;
+const getBooking = async (req, res) => {
+    try {
+        const bookings = await prisma.booking.findMany({
+            include: {
+                payment: true,
+            },
+        });
+
+        const normalizedResponse = bookings.map(booking => ({
+            booking_id: booking.id,
+            customer_name: booking.customer_name,
+            email: booking.email,
+            phone_number: booking.phone_number,
+            price: booking.price,
+            schedule: booking.schedule,
+            notes: booking.notes,
+            booking_status: booking.booking_status,
+            catalog_id: booking.catalog_id,
+            payment_id: booking.payment_id,
+            account_name: booking.payment.account_name,
+            account_number: booking.payment.account_number,
+            payment_method: booking.payment.payment_method,
+            transfer_nominal: booking.payment.transfer_nominal,
+            payment_status: booking.payment.status,
+        }));
+
+        return sendSuccess(res, normalizedResponse, "Success");
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to retrieve bookings', 500);
+    }
+};
+
+const updateBookingStatus = async (req, res) => {
+    try {
+        const { booking_id, booking_status, payment_status } = req.body;
+        const booking = await prisma.booking.update({
+            where: {
+                id: booking_id,
+            },
+            data: {
+                booking_status,
+                updated_at: currentTimeJakarta(),
+                payment: {
+                    update: {
+                        status: payment_status,
+                        updated_at: currentTimeJakarta(),
+                    },
+                },
+            },
+            include: {
+                payment: true,
+            },
+        });
+
+        return sendSuccess(res, booking, "Success");
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to update booking status', 500);
+    }
+};
+
+module.exports = { createBooking, getBooking, updateBookingStatus };
