@@ -20,6 +20,7 @@ Ensure you have the following installed on your machine:
 
 - [Node.js](https://nodejs.org/) (version 20.15.0 or later)
 - [MySQL](https://www.mysql.com/)
+
 ## All Environment variables
 
 Create a .env file at the root of the project to store your environment-specific variables. An example .env file might look like this:
@@ -35,16 +36,16 @@ PASSWORD=""
 JWT_SECRET=""
 ```
 
-| variables | Description                |
-| :-------- | :------------------------- |
-| `DATABASE_URL` | MySQL connection string |
-| `PORT` |Port number the app will run on |
-| `CLOUDINARY_CLOUD_NAME` |Your Cloudinary API Name |
-| `CLOUDINARY_API_KEY` |Your Cloudinary API KEY |
-| `CLOUDINARY_API_SECRET` |Your Cloudinary API SECRET |
-| `EMAIL` |Username email for nodemailer |
-| `PASSWORD` |Password activation for nodmailer |
-| `JWT_SECRET` |Secret code for JWT |
+| variables               | Description                       |
+| :---------------------- | :-------------------------------- |
+| `DATABASE_URL`          | MySQL connection string           |
+| `PORT`                  | Port number the app will run on   |
+| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary API Name          |
+| `CLOUDINARY_API_KEY`    | Your Cloudinary API KEY           |
+| `CLOUDINARY_API_SECRET` | Your Cloudinary API SECRET        |
+| `EMAIL`                 | Username email for nodemailer     |
+| `PASSWORD`              | Password activation for nodmailer |
+| `JWT_SECRET`            | Secret code for JWT               |
 
 ## Installation
 
@@ -108,8 +109,7 @@ JWT_SECRET=""
    npm run dev
    ```
 
-
-
 ## API Documentation
+
 Documentation about API in
-[Postman](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)
+[Postman](https://www.postman.com/technical-architect-11262708/workspace/public/collection/31539387-4b3068f5-52d7-4222-a939-f1b6cc6f3651?action=share&creator=31539387)
