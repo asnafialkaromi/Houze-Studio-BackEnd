@@ -1,10 +1,35 @@
 require('dotenv').config();
 const express = require("express");
 const indexRoutes = require("./routes/indexRoute");
+const cors = require('cors');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 const app = express();
+const corsOptions = {
+    origin: "https://localhost:3000",
+    credentials: true,
+    optionSuccessStatus: 200,
+};
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
+app.use(
+    session({
+        secret: process.env.JWT_SECRET,
+        saveUninitialized: false,
+        resave: false,
+        name: "auth-session",
+        proxy: true,
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24,
+            secure: true,
+            httpOnly: false,
+            sameSite: "none",
+        },
+    })
+);
+app.use(cookieParser());
 app.use(indexRoutes);
 
 app.get("/", (req, res) => {
