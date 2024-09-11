@@ -38,12 +38,13 @@ model auth {
 }
 
 model catalog {
-  id           String    @id @db.VarChar(255)
-  catalog_name String    @db.VarChar(255)
-  catalog_type String    @db.VarChar(255)
-  price        BigInt
-  description  BigInt
-  booking      booking[]
+  id             String           @id @db.VarChar(255)
+  catalog_name   String           @db.VarChar(255)
+  catalog_type   String           @db.VarChar(255)
+  price          Int
+  description    String           @db.Text
+  booking        booking[]
+  catalog_images catalog_images[]
 }
 
 model payment {
@@ -57,4 +58,13 @@ model payment {
   created_at       DateTime  @default(now()) @db.DateTime(0)
   updated_at       DateTime  @default(now()) @db.DateTime(0)
   booking          booking[]
+}
+
+model catalog_images {
+  id         Int     @id @default(autoincrement())
+  catalog_id String  @db.VarChar(255)
+  image_url  String? @db.VarChar(255)
+  catalog    catalog @relation(fields: [catalog_id], references: [id], onUpdate: Restrict, map: "catalog_images_ibfk_1")
+
+  @@index([catalog_id], map: "catalog_id")
 }
