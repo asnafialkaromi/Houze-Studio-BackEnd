@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { sendError } = require("../utils/baseResponse");
 
 const authenticateJWT = (req, res, next) => {
-    const token = req.cookies.token;
+    const token = req.session.token;
     if (!token) {
         sendError(res, "Unauthorized", 401);
         return;
