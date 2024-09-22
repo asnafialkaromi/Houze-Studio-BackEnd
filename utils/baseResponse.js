@@ -7,6 +7,18 @@ const sendResponse = (res, statusCode, success, message, data) => {
     });
 };
 
+const sendResponsePagination = (res, statusCode, success, message, page, limit, totalItems, data) => {
+    res.status(statusCode).json({
+        code: statusCode,
+        status: success ? 'success' : 'error',
+        page: page,
+        limit: limit,
+        totalItems: totalItems,
+        message: message,
+        data,
+    });
+};
+
 const sendSuccess = (
     res,
     data,
@@ -15,6 +27,19 @@ const sendSuccess = (
     success = true
 ) => {
     sendResponse(res, statusCode, success, message, data);
+};
+
+const sendSuccessGetPaginationData = (
+    res,
+    page,
+    limit,
+    totalItems,
+    data,
+    message = "Success",
+    statusCode = 200,
+    success = true
+) => {
+    sendResponsePagination(res, statusCode, success, message, page, limit, totalItems, data);
 };
 
 const sendError = (
@@ -30,4 +55,5 @@ module.exports = {
     sendResponse,
     sendSuccess,
     sendError,
+    sendSuccessGetPaginationData
 };

@@ -1,9 +1,8 @@
 const cloudinary = require('../config/cloudinaryConfig');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { sendSuccess, sendError } = require('../utils/baseResponse');
-const currentTimeJakarta = require('../utils/currentTime');
-
+const { sendSuccess, sendError, sendSuccessGetPaginationData } = require('../utils/baseResponse');
+const { getToday, getTodayRange } = require('../utils/dateUtils');
 const createBooking = async (req, res) => {
     const { account_name, account_number, payment_method, transfer_nominal, customer_name, email, phone_number, price, notes, schedule, catalog_id } = req.body;
     try {
@@ -21,8 +20,8 @@ const createBooking = async (req, res) => {
                 status: status,
                 transfer_nominal: parseFloat(transfer_nominal),
                 img_url: imageUpload.secure_url,
-                created_at: currentTimeJakarta(),
-                updated_at: currentTimeJakarta(),
+                created_at: getToday(),
+                updated_at: getToday(),
             },
         });
 
@@ -50,26 +49,37 @@ const createBooking = async (req, res) => {
                 notes,
                 schedule: new Date(schedule),
                 booking_status: booking_status,
-                created_at: currentTimeJakarta(),
-                updated_at: currentTimeJakarta(),
+                created_at: getToday(),
+                updated_at: getToday(),
                 catalog_id: catalog_id,
             },
         });
 
         return sendSuccess(res, { bookings, payment }, "Booking Success");
-
     } catch (error) {
+        console.error(error);
         return sendError(res, error);
     }
 }
 
-const getBooking = async (req, res) => {
+const getBookings = async (req, res) => {
     try {
-        const bookings = await prisma.booking.findMany({
-            include: {
-                payment: true,
-            },
-        });
+        const { page = 1, limit = 10 } = req.query;
+
+        const skip = (page - 1) * limit;
+        const take = parseInt(limit);
+
+        const bookings = await prisma.booking.findMany(
+            {
+                skip,
+                take,
+                orderBy: { id: 'desc' },
+                include: {
+                    payment: true,
+                },
+            });
+
+        const totalItems = await prisma.booking.count();
 
         const normalizedResponse = bookings.map(booking => ({
             booking_id: booking.id,
@@ -89,7 +99,7 @@ const getBooking = async (req, res) => {
             payment_status: booking.payment.status,
         }));
 
-        return sendSuccess(res, normalizedResponse, "Success");
+        return sendSuccessGetPaginationData(res, page, limit, totalItems, normalizedResponse, "Success");
     } catch (error) {
         console.error(error);
         return sendError(res, 'Failed to retrieve bookings', 500);
@@ -105,11 +115,11 @@ const updateBookingStatus = async (req, res) => {
             },
             data: {
                 booking_status,
-                updated_at: currentTimeJakarta(),
+                updated_at: getToday(),
                 payment: {
                     update: {
                         status: payment_status,
-                        updated_at: currentTimeJakarta(),
+                        updated_at: getToday(),
                     },
                 },
             },
@@ -125,4 +135,37 @@ const updateBookingStatus = async (req, res) => {
     }
 };
 
-module.exports = { createBooking, getBooking, updateBookingStatus };
+const getTotalBooking = async (req, res) => {
+    try {
+        const { startOfToday, endOfToday } = getTodayRange();
+
+        const totalBooking = await prisma.booking.count();
+        const todayBooking = await prisma.booking.count({
+            where: { created_at: { gte: startOfToday, lte: endOfToday } },
+        })
+        const completedBooking = await prisma.booking.count({
+            where: { booking_status: 'Completed' },
+        })
+        const pendingBooking = await prisma.booking.count({
+            where: { booking_status: 'Active' },
+        })
+        const canceledBooking = await prisma.booking.count({
+            where: { booking_status: 'Canceled' },
+        })
+
+        const acumulatedData = {
+            totalBookings: totalBooking,
+            todayBookings: todayBooking,
+            completedBookings: completedBooking,
+            pendingBookings: pendingBooking,
+            canceledBookings: canceledBooking
+        }
+
+        return sendSuccess(res, acumulatedData, "Get total booking data success");
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to get total booking', 500);
+    }
+};
+
+module.exports = { createBooking, getBookings, updateBookingStatus, getTotalBooking };

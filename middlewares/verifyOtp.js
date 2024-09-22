@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { sendSuccess, sendError } = require('../utils/baseResponse');
-const currentTimeJakarta = require('../utils/currentTime');
+const { getToday } = require('../utils/dateUtils');
 
 const verifyOtp = async (req, res, next) => {
     const { email, otp } = req.body;
@@ -27,7 +27,7 @@ const verifyOtp = async (req, res, next) => {
             sendError(res, 'Invalid OTP', 400);
             return;
         }
-        if (user.updated_at < currentTimeJakarta() - 210000) {
+        if (user.updated_at < getToday() - 210000) {
             sendError(res, 'OTP expired', 400);
             return;
         }

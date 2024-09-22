@@ -4,10 +4,11 @@ const indexRoutes = require("./routes/indexRoute");
 const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const dayjs = require('dayjs');
 
 const app = express();
 const corsOptions = {
-    origin: "https://localhost:3000",
+    origin: "https://localhost:5173",
     credentials: true,
     optionSuccessStatus: 200,
 };
