@@ -3,8 +3,6 @@ const express = require("express");
 const indexRoutes = require("./routes/indexRoute");
 const cors = require('cors');
 const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const dayjs = require('dayjs');
 
 const app = express();
 const corsOptions = {
@@ -17,20 +15,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(
     session({
-        secret: process.env.JWT_SECRET,
+        secret: process.env.SESSION_SECRET,
         saveUninitialized: false,
         resave: false,
-        name: "auth-session",
         proxy: true,
         cookie: {
             maxAge: 1000 * 60 * 60 * 24,
-            secure: true,
+            secure: false,
             httpOnly: false,
             sameSite: "none",
         },
     })
 );
-app.use(cookieParser());
 app.use(indexRoutes);
 
 app.get("/", (req, res) => {

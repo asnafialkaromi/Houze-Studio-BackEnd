@@ -3,7 +3,6 @@ const prisma = new PrismaClient();
 const { sendSuccess, sendError } = require('../utils/baseResponse');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { getToday } = require('../utils/dateUtils');
 
 const createUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -54,13 +53,8 @@ const sighnIn = async (req, res) => {
             const token = jwt.sign({ name: user.name, email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '1d',
             });
-            res.cookie('token', token, {
-                httpOnly: false,
-                secure: true,
-                maxAge: 24 * 60 * 60 * 1000,
-                sameSite: 'strict',
-            });
-            sendSuccess(res, { name: user.name, email: user.email, token: token }, 'User signed in successfully', 200);
+            req.session.token = token
+            sendSuccess(res, { token: token }, 'User signed in successfully', 200);
             return;
         }
     } catch (error) {
@@ -87,7 +81,7 @@ const resetPassword = async (req, res) => {
             data: {
                 password: hashedPassword,
                 otp: null,
-                updated_at: getToday(),
+                updated_at: currentTimeJakarta(),
             },
         });
         sendSuccess(res, { name: user.name, email: user.email }, 'Password reset successfully');
@@ -104,8 +98,9 @@ const getUserData = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    res.clearCookie('token');
-    sendSuccess(res, null, 'User logged out successfully');
+    res.clearCookie('connect.sid')
+    req.session.destroy()
+    return sendSuccess(res, {}, 'User logged out successfully');
 }
 
 module.exports = { createUser, sighnIn, resetPassword, getUserData, logout };
