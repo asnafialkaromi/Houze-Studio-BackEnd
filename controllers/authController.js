@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const { sendSuccess, sendError } = require('../utils/baseResponse');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const currentTimeJakarta = require('../utils/currentTime');
+const { getToday } = require('../utils/dateUtils');
 
 const createUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -87,7 +87,7 @@ const resetPassword = async (req, res) => {
             data: {
                 password: hashedPassword,
                 otp: null,
-                updated_at: currentTimeJakarta(),
+                updated_at: getToday(),
             },
         });
         sendSuccess(res, { name: user.name, email: user.email }, 'Password reset successfully');

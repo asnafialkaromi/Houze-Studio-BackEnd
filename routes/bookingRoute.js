@@ -5,8 +5,9 @@ const authenticateJWT = require('../middlewares/authenticateJWT');
 
 const router = express.Router();
 
-router.post('/add-booking', uploadImage.single('image'), BookingController.createBooking);
-router.get('/bookings', authenticateJWT, BookingController.getBooking);
-router.put('/update-booking-status', authenticateJWT, BookingController.updateBookingStatus);
+router.post('/booking/add', uploadImage.single('image'), BookingController.createBooking);
+router.get('/bookings', authenticateJWT, BookingController.getBookings);
+router.get('/bookings/count', authenticateJWT, BookingController.getTotalBooking);
+router.put('/booking/update', authenticateJWT, BookingController.updateBookingStatus);
 
 module.exports = router;

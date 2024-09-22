@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const sendEmail = require('../utils/sendEmail');
 const { sendSuccess, sendError } = require('../utils/baseResponse');
 const generateOTP = require('../utils/otpGenerator');
-const currentTimeJakarta = require('../utils/currentTime');
+const { getToday } = require('../utils/dateUtils');
 
 const requestOtp = async (req, res) => {
     const { email } = req.body;
@@ -22,7 +22,7 @@ const requestOtp = async (req, res) => {
             sendError(res, 'User not found', 404);
             return;
         }
-        if (user.updated_at > currentTimeJakarta() - 60000) {
+        if (user.updated_at > getToday() - 60000) {
             sendError(res, 'OTP already sent, Please wait for 1 minutes', 400);
             return;
         }
@@ -35,7 +35,7 @@ const requestOtp = async (req, res) => {
             },
             data: {
                 otp: otpNumber,
-                updated_at: currentTimeJakarta(),
+                updated_at: getToday(),
             },
         });
         sendSuccess(res, { otp: otpNumber }, 'OTP sent successfully');
