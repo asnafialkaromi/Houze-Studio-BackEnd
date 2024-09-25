@@ -6,7 +6,7 @@ const session = require('express-session');
 
 const app = express();
 const corsOptions = {
-    origin: "https://localhost:5173",
+    origin: "http://localhost:5173",
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -23,7 +23,7 @@ app.use(
             maxAge: 1000 * 60 * 60 * 24,
             secure: false,
             httpOnly: false,
-            sameSite: "none",
+            sameSite: 'strict',
         },
     })
 );
