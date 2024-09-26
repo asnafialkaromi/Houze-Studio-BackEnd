@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
 const getGoogleAuthClient = require('../config/googleCalendarConfig');
+require('dotenv').config();
 
 async function getEventsForDay(selectedDay) {
     const auth = getGoogleAuthClient();
@@ -13,7 +14,7 @@ async function getEventsForDay(selectedDay) {
     endOfDay.setHours(23, 59, 59, 999);
 
     const res = await calendar.events.list({
-        calendarId: '65cba9070677564a2c2d42aa1489d2ad8390c65a82c3cb42de2ff7279865048c@group.calendar.google.com',
+        calendarId: process.env.CALENDAR_ID,
         timeMin: startOfDay.toISOString(),
         timeMax: endOfDay.toISOString(),
         singleEvents: true,
@@ -23,4 +24,32 @@ async function getEventsForDay(selectedDay) {
     return res.data.items;
 }
 
-module.exports = { getEventsForDay };
+async function createEvent(summary, description, startTime, endTime) {
+    const auth = getGoogleAuthClient();
+
+    await auth.authorize();
+
+    const calendar = google.calendar({ version: 'v3', auth });
+
+    const event = {
+        summary: summary,
+        description: description,
+        start: {
+            dateTime: startTime,
+            timeZone: 'Asia/Jakarta',
+        },
+        end: {
+            dateTime: endTime,
+            timeZone: 'Asia/Jakarta',
+        }
+    };
+
+    const res = await calendar.events.insert({
+        calendarId: process.env.CALENDAR_ID,
+        resource: event,
+    });
+
+    return res.data;
+}
+
+module.exports = { getEventsForDay, createEvent };
