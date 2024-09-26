@@ -6,6 +6,6 @@ const uploadImage = require("../middlewares/uploadImage");
 const router = express.Router();
 
 router.post("/catalog/add", authenticateJWT, uploadImage.array('image', 5), catalogController.createCatalog);
-router.get("/catalogs", authenticateJWT, catalogController.getCatalog);
+router.get("/catalogs", catalogController.getCatalog);
 
 module.exports = router
