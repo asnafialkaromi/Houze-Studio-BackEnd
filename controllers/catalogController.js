@@ -71,6 +71,24 @@ const getCatalog = async (req, res) => {
     }
 };
 
+const getCatalogById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const catalog = await prisma.catalog.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                catalog_images: true
+            }
+        });
+        sendSuccess(res, catalog, 'Get catalog success');
+    } catch (error) {
+        sendError(res, error.message, 500);
+        console.log(error);
+    }
+};
+
 const deleteCatalog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -86,4 +104,4 @@ const deleteCatalog = async (req, res) => {
     }
 };
 
-module.exports = { createCatalog, getCatalog };
+module.exports = { createCatalog, getCatalog, getCatalogById, deleteCatalog };
