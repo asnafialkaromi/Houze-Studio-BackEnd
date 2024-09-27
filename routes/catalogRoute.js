@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.post("/catalog/add", authenticateJWT, uploadImage.array('image', 5), catalogController.createCatalog);
 router.get("/catalogs", catalogController.getCatalog);
+router.get("/catalog/:id", catalogController.getCatalogById);
 
 module.exports = router
