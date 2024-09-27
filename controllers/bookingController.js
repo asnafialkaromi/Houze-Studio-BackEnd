@@ -106,6 +106,47 @@ const getBookings = async (req, res) => {
     }
 };
 
+const getBookingById = async (req, res) => {
+    try {
+        const { booking_id } = req.params;
+        const booking = await prisma.booking.findUnique({
+            where: {
+                id: booking_id,
+            },
+            include: {
+                payment: true,
+            },
+        });
+
+        if (!booking) {
+            return sendError(res, 'Booking not found', 404);
+        }
+
+        const normalizedResponse = {
+            booking_id: booking.id,
+            customer_name: booking.customer_name,
+            email: booking.email,
+            phone_number: booking.phone_number,
+            price: booking.price,
+            schedule: booking.schedule,
+            notes: booking.notes,
+            booking_status: booking.booking_status,
+            catalog_id: booking.catalog_id,
+            payment_id: booking.payment_id,
+            account_name: booking.payment.account_name,
+            account_number: booking.payment.account_number,
+            payment_method: booking.payment.payment_method,
+            transfer_nominal: booking.payment.transfer_nominal,
+            payment_status: booking.payment.status,
+        };
+
+        return sendSuccess(res, normalizedResponse, "Success");
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to retrieve booking', 500);
+    }
+};
+
 const updateBookingStatus = async (req, res) => {
     try {
         const { booking_id, booking_status, payment_status } = req.body;
@@ -168,4 +209,4 @@ const getTotalBooking = async (req, res) => {
     }
 };
 
-module.exports = { createBooking, getBookings, updateBookingStatus, getTotalBooking };
+module.exports = { createBooking, getBookings, getBookingById, updateBookingStatus, getTotalBooking };

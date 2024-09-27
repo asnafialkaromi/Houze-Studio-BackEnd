@@ -82,6 +82,11 @@ const getCatalogById = async (req, res) => {
                 catalog_images: true
             }
         });
+
+        if (!catalog) {
+            return sendError(res, 'Catalog not found', 404);
+        }
+
         sendSuccess(res, catalog, 'Get catalog success');
     } catch (error) {
         sendError(res, error.message, 500);

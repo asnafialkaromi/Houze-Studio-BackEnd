@@ -9,5 +9,6 @@ router.post('/booking/add', uploadImage.single('image'), BookingController.creat
 router.get('/bookings', authenticateJWT, BookingController.getBookings);
 router.get('/bookings/count', authenticateJWT, BookingController.getTotalBooking);
 router.put('/booking/update', authenticateJWT, BookingController.updateBookingStatus);
+router.get('/booking/:booking_id', authenticateJWT, BookingController.getBookingById);
 
 module.exports = router;
