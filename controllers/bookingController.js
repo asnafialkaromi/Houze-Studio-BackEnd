@@ -106,6 +106,37 @@ const getBookings = async (req, res) => {
     }
 };
 
+const getBookingsByUser = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+
+        const skip = (page - 1) * limit;
+        const take = parseInt(limit);
+
+        const bookings = await prisma.booking.findMany(
+            {
+                skip,
+                take,
+                orderBy: { id: 'desc' },
+                include: {
+                    payment: true,
+                },
+            });
+
+        const totalItems = await prisma.booking.count();
+
+        const normalizedResponse = bookings.map(booking => ({
+            booking_id: booking.id,
+            schedule: booking.schedule,
+        }));
+
+        return sendSuccessGetPaginationData(res, page, limit, totalItems, normalizedResponse, "Success");
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to retrieve bookings', 500);
+    }
+};
+
 const getBookingById = async (req, res) => {
     try {
         const { booking_id } = req.params;
@@ -209,4 +240,4 @@ const getTotalBooking = async (req, res) => {
     }
 };
 
-module.exports = { createBooking, getBookings, getBookingById, updateBookingStatus, getTotalBooking };
+module.exports = { createBooking, getBookings, getBookingsByUser, getBookingById, updateBookingStatus, getTotalBooking };
