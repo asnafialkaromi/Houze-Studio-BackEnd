@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { sendSuccess, sendError, sendSuccessGetPaginationData } = require('../utils/baseResponse');
 const { getToday, getTodayRange } = require('../utils/dateUtils');
+const dayjs = require('dayjs');
 const createBooking = async (req, res) => {
     const { account_name, account_number, payment_method, transfer_nominal, customer_name, email, phone_number, price, notes, schedule, catalog_id } = req.body;
     try {
@@ -108,10 +109,12 @@ const getBookings = async (req, res) => {
 
 const getBookingsByUser = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 10, date } = req.query;
 
         const skip = (page - 1) * limit;
         const take = parseInt(limit);
+        const startDate = dayjs(date).startOf('day').toDate();
+        const endDate = dayjs(date).endOf('day').toDate();
 
         const bookings = await prisma.booking.findMany(
             {
@@ -121,9 +124,24 @@ const getBookingsByUser = async (req, res) => {
                 include: {
                     payment: true,
                 },
+                where: {
+                    schedule: {
+                        gte: startDate,
+                        lte: endDate,
+                    },
+                },
             });
 
-        const totalItems = await prisma.booking.count();
+        const totalItems = await prisma.booking.count(
+            {
+                where: {
+                    schedule: {
+                        gte: startDate,
+                        lte: endDate,
+                    },
+                },
+            }
+        );
 
         const normalizedResponse = bookings.map(booking => ({
             booking_id: booking.id,
